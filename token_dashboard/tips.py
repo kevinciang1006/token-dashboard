@@ -162,9 +162,9 @@ def outlier_tips(db_path, today_iso: Optional[str] = None) -> List[dict]:
                  MAX(input_tokens+output_tokens) AS max_t
             FROM messages
            WHERE is_sidechain=1 AND agent_id IS NOT NULL AND timestamp >= ?
-           GROUP BY agent_id HAVING n >= 5
+           GROUP BY agent_id HAVING n >= 10
         """, (since,)):
-            if (row["max_t"] or 0) > 4 * (row["mean_t"] or 1):
+            if (row["max_t"] or 0) > 6 * (row["mean_t"] or 1) and (row["max_t"] or 0) > 50_000:
                 key = _key("subagent-outlier", row["agent_id"])
                 if _is_dismissed(db_path, key):
                     continue
