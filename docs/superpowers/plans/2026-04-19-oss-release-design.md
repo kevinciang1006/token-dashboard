@@ -1626,4 +1626,14 @@ Spot-checked:
 - `server.py` — no SQL strings; all queries go through `db.py` helpers.
 
 **Verdict:** no action required.
-<!-- Task 6 appends "### 6. Path-write safety" here -->
+### 6. Path-write safety — clean
+
+Writes outside process memory are limited to:
+1. The SQLite DB path (default `~/.claude/token-dashboard.db`, overridable via `--db` flag or `TOKEN_DASHBOARD_DB` env var — both user-supplied).
+2. No other filesystem writes.
+
+Reads:
+- `scanner` reads `*.jsonl` under `projects_dir` (default `~/.claude/projects/`, overridable via `--projects-dir` / `CLAUDE_PROJECTS_DIR`) — read-only.
+- `_serve_static` (`server.py:40-46`) resolves the candidate path and verifies `startswith(WEB_ROOT)` before reading — blocks `../` traversal.
+
+**Verdict:** no code path writes outside user-supplied locations; no read path escapes `WEB_ROOT`.
