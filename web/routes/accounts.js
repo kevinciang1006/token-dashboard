@@ -24,7 +24,7 @@ function sessionBlock(sess) {
       <span style="font-weight:500">${fmt.usd(sess.cost_usd)}</span>
     </div>
     <div class="muted" style="font-size:12px">
-      <a href="#/sessions/${encodeURIComponent(sess.session_id)}">${relTime(sess.started_at)}</a>
+      <a href="#/sessions/${encodeURIComponent(sess.session_id)}">${relTime(sess.started_at) || 'view session'}</a>
     </div>`;
 }
 
