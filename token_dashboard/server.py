@@ -14,6 +14,7 @@ from .db import (
     overview_totals, expensive_prompts, project_summary,
     tool_token_breakdown, recent_sessions, session_turns,
     daily_token_breakdown, model_breakdown, skill_breakdown,
+    init_db,
 )
 from .pricing import load_pricing, cost_for, get_plan, set_plan
 from .tips import all_tips, dismiss_tip
@@ -68,8 +69,9 @@ def _serve_static(handler, rel: str) -> None:
     handler.wfile.write(body)
 
 
-def build_handler(db_path: str, projects_dir: str):
+def build_handler(db_path: str, projects_dir: str, accounts=None):
     pricing = load_pricing(PRICING_JSON)
+    _accounts = accounts or []
 
     class H(http.server.BaseHTTPRequestHandler):
         def log_message(self, fmt, *args):
@@ -144,6 +146,9 @@ def build_handler(db_path: str, projects_dir: str):
             if path == "/api/scan":
                 n = scan_dir(projects_dir, db_path)
                 return _send_json(self, n)
+            if path == "/api/accounts/summary":
+                from .accounts import account_summaries
+                return _send_json(self, account_summaries(_accounts, pricing))
             if path == "/api/stream":
                 self.send_response(200)
                 self.send_header("Content-Type", "text/event-stream")
@@ -202,7 +207,14 @@ def _scan_loop(db_path: str, projects_dir: str, interval: float = 30.0):
 
 
 def run(host: str, port: int, db_path: str, projects_dir: str):
+    from .accounts import load_accounts
+    accounts = load_accounts()
+    for acc in accounts:
+        init_db(acc["db"])
+        threading.Thread(
+            target=_scan_loop, args=(acc["db"], acc["projects_dir"]), daemon=True
+        ).start()
     threading.Thread(target=_scan_loop, args=(db_path, projects_dir), daemon=True).start()
-    H = build_handler(db_path, projects_dir)
+    H = build_handler(db_path, projects_dir, accounts)
     httpd = http.server.ThreadingHTTPServer((host, port), H)
     httpd.serve_forever()
