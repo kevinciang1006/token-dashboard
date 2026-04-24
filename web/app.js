@@ -33,6 +33,7 @@ export const state = { plan: 'api', pricing: null };
 
 const ROUTES = {
   '/overview': () => import('/web/routes/overview.js'),
+  '/accounts': () => import('/web/routes/accounts.js'),
   '/prompts':  () => import('/web/routes/prompts.js'),
   '/sessions': () => import('/web/routes/sessions.js'),
   '/projects': () => import('/web/routes/projects.js'),
