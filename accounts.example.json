@@ -1,0 +1,17 @@
+[
+  {
+    "name": "Personal",
+    "projects_dir": "/Users/you/.claude/projects",
+    "db": "/Users/you/.claude/token-dashboard-personal.db"
+  },
+  {
+    "name": "Work",
+    "projects_dir": "/Users/you/.claude-work/projects",
+    "db": "/Users/you/.claude/token-dashboard-work.db"
+  },
+  {
+    "name": "Team",
+    "projects_dir": "/Users/you/.claude-team/projects",
+    "db": "/Users/you/.claude/token-dashboard-team.db"
+  }
+]
